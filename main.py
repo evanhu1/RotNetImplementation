@@ -42,7 +42,7 @@ def validate(val_loader, model, criterion):
         loss = criterion(outputs, target)
         total_loss.append(loss.item())
         
-    return total_loss
+    return sum(total_loss)/(i+1)
         
 
 def save_checkpoint(state, best_one, filename='rotationnetcheckpoint.pth.tar', filename2='rotationnetmodelbest.pth.tar'):
@@ -58,21 +58,23 @@ def main():
     optimizer = optim.SGD(model.parameters(), momentum=config["momentum"], 
                           lr=config["learning_rate"], weight_decay=config["weight_decay"]) #which optimizer are you using
 
-    train_dataset = Data("") #how will you get your dataset
-    train_loader = #how will you use pytorch's function to build a dataloader
-    val_dataset = #how will you get your dataset
-    val_loader = #how will you use pytorch's function to build a dataloader
+    path = ""    #check this
+    train_dataset = Data(path + "/test_batch") 
+    train_loader = DataLoader(train_dataset, batch_size=config["batch_size"])
+    val_dataset = Data(path)
+    val_loader = DataLoader(val_dataset, batch_size=config["batch_size"])
     
     best_loss = float('inf')
 
     for epoch in range(n_epochs):
         #TODO: make your loop which trains and validates. Use the train() func
         train(train_loader, model, criterion, optimizer, epoch)
+        curr_loss = validate(val_loader, model, criterion)
         
-        total_loss = validate(val_loader, model, criterion)
-        #TODO: Save your checkpoint
-        save_checkpoint(model.state_dict(), best_loss)
-
+        #TODO: Save your checkpoint (if current loss is better than current best)
+        if curr_loss < best_loss:
+            best_loss = curr_loss
+            save_checkpoint(model.state_dict(), best_loss)
 
 
 if __name__ == "__main__":
