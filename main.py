@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 from torch.autograd import Variable
 from torchvision import transforms
-from torch.utils.data import Dataset, DataLoader  # For custom datasets
+from torch.utils.data.dataset import Dataset  # For custom datasets
 from data import Data
-from rotnet import RotNet
+from resnet import ResNet
 import time
 import shutil
 import yaml
@@ -25,12 +25,25 @@ def train(train_loader, model, criterion, optimizer, epoch):
     model.train()
     for i, (input, target) in enumerate(train_loader):
     	#TODO: use the usual pytorch implementation of training
-
+        optimizer.zero_grad()
+        outputs = model(input)
+        loss = criterion(outputs, target)
+        loss.backward()
+        optimizer.step()
+        
 def validate(val_loader, model, criterion):
+    total_loss = []
+    
 	model.eval()
     for i, (input, target) in enumerate(val_loader):
     	#TODO: implement the validation. Remember this is validation and not training
     	#so some things will be different.
+        outputs = model(input)
+        loss = criterion(outputs, target)
+        total_loss.append(loss.item())
+        
+    return total_loss
+        
 
 def save_checkpoint(state, best_one, filename='rotationnetcheckpoint.pth.tar', filename2='rotationnetmodelbest.pth.tar'):
 	torch.save(state, filename)
@@ -39,22 +52,26 @@ def save_checkpoint(state, best_one, filename='rotationnetcheckpoint.pth.tar', f
         shutil.copyfile(filename, filename2)
 
 def main():
-	n_epochs = config["num_epochs"]
-	model = #make the model with your paramters
-	criterion = #what is your loss function
-	optimizer = #which optimizer are you using
+    n_epochs = config["num_epochs"]
+    model = ResNet(block=resnet.block, layers=None, num_classes=4) #make the model with your paramters
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), momentum=config["momentum"], 
+                          lr=config["learning_rate"], weight_decay=config["weight_decay"]) #which optimizer are you using
 
-	train_dataset = Data()
-	train_loader = Da
-	val_loader = #how will you get your dataset
-	val_loader = #how will you use pytorch's function to build a dataloader
+    train_dataset = Data("") #how will you get your dataset
+    train_loader = #how will you use pytorch's function to build a dataloader
+    val_dataset = #how will you get your dataset
+    val_loader = #how will you use pytorch's function to build a dataloader
+    
+    best_loss = float('inf')
 
-	 for epoch in range(n_epochs):
-	 	 #TODO: make your loop which trains and validates. Use the train() func
-
-	 	 #TODO: Save your checkpoint
-
-
+    for epoch in range(n_epochs):
+        #TODO: make your loop which trains and validates. Use the train() func
+        train(train_loader, model, criterion, optimizer, epoch)
+        
+        total_loss = validate(val_loader, model, criterion)
+        #TODO: Save your checkpoint
+        save_checkpoint(model.state_dict(), best_loss)
 
 
 
