@@ -1,4 +1,3 @@
-
 import torch.nn as nn
 #add imports as necessary
 
@@ -7,16 +6,16 @@ class ResNet(nn.Module):
         super(ResNet, self).__init__()
         #populate the layers with your custom functions or pytorch
         #functions.
-        self.conv1 = nn.Conv2d(64, kernel_size=1, stride=1, padding=0)
+        self.conv1 = nn.Conv2d(32, 64, kernel_size=1, stride=1, padding=0)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU()
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         
         #ResNet layers
-        self.layer1 = self.new_block(64, 64, stride=1)
-        self.layer2 = self.new_block(64, 128, stride=2)
-        self.layer3 = self.new_block(128, 256, stride=2)
-        self.layer4 = self.new_block(256, 512, stride=2)
+        self.layer1 = self.new_block(block, 64, 64, stride=1)
+        self.layer2 = self.new_block(block, 64, 128, stride=2)
+        self.layer3 = self.new_block(block, 128, 256, stride=2)
+        self.layer4 = self.new_block(block, 256, 512, stride=2)
         
         self.avgpool = nn.AvgPool2d(kernel_size=1)
         self.fc = nn.Linear(512, num_classes)

@@ -13,9 +13,11 @@ Make sure you read enough documentation.
 '''
 
 class Data(Dataset):
-    def __init__(self, data_dir):
+    def __init__(self, data_dir, validation=False):
         #gets the data from the directory
-        self.file_list = glob.glob(data_dir+'data*')
+        print(data_dir)
+        self.file_list = glob.glob(data_dir + ('test*' if validation else 'data*'))
+        print(self.file_list)
         self.dict_list = []
         self.dict = defaultdict(list)
         for file in self.file_list:
@@ -24,11 +26,10 @@ class Data(Dataset):
         for d in self.dict_list:
             for key, value in d.items():
                 self.dict[key].extend(value)
-        self.image_list = np.array(self.dict[b'data']).reshape(50000, 3, 32, 32).transpose(0, 2, 3, 1)
+        self.image_list = np.array(self.dict[b'data']).reshape(10000 if validation else 50000, 3, 32, 32).transpose(0, 2, 3, 1)
         self.labels = np.array(self.dict[b'labels'])
         #calculates the length of image_list
         self.data_len = len(self.image_list)
-        
 
     def __getitem__(self, index):
         # Get image name from the pandas df
@@ -49,10 +50,4 @@ class Data(Dataset):
 
     def __len__(self):
         return self.data_len
-
-d = Data("/Users/evanhu/code/SP21-NMEP/hw6/data/cifar-10-batches-py/")
-c = 0
-for p in d.__getitem__(0)[0]:
-    print(p.numpy().transpose(2, 0, 1).shape)
-    Image.fromarray(p.numpy()).save("image" + c)
-    c += 1
+        

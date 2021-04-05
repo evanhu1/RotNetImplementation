@@ -1,13 +1,15 @@
 import torch
 import torch.nn as nn
 from torch.autograd import Variable
+from torch.optim import SGD
 from torchvision import transforms
-from torch.utils.data.dataset import Dataset  # For custom datasets
+from torch.utils.data import Dataset, DataLoader  # For custom datasets
+import yaml
 from data import Data
-from resnet import ResNet
+from resnet import ResNet, block
 import time
 import shutil
-import yaml
+import argparse
 
 parser = argparse.ArgumentParser(description='Configuration details for training/testing rotation net')
 parser.add_argument('--config', type=str, required=True)
@@ -20,48 +22,45 @@ args = parser.parse_args()
 
 config = yaml.load(open(args.config, 'r'), Loader=yaml.FullLoader)
 
-
 def train(train_loader, model, criterion, optimizer, epoch):
     model.train()
     for i, (input, target) in enumerate(train_loader):
-    	#TODO: use the usual pytorch implementation of training
+        #TODO: use the usual pytorch implementation of training
         optimizer.zero_grad()
         outputs = model(input)
         loss = criterion(outputs, target)
         loss.backward()
         optimizer.step()
-        
+
 def validate(val_loader, model, criterion):
     total_loss = []
     
-	model.eval()
+    model.eval()
     for i, (input, target) in enumerate(val_loader):
-    	#TODO: implement the validation. Remember this is validation and not training
-    	#so some things will be different.
+        #TODO: implement the validation. Remember this is validation and not training
+        #so some things will be different.
         outputs = model(input)
         loss = criterion(outputs, target)
         total_loss.append(loss.item())
         
     return sum(total_loss)/(i+1)
-        
 
 def save_checkpoint(state, best_one, filename='rotationnetcheckpoint.pth.tar', filename2='rotationnetmodelbest.pth.tar'):
-	torch.save(state, filename)
-	#best_one stores whether your current checkpoint is better than the previous checkpoint
+    torch.save(state, filename)
+    #best_one stores whether your current checkpoint is better than the previous checkpoint
     if best_one:
         shutil.copyfile(filename, filename2)
 
 def main():
     n_epochs = config["num_epochs"]
-    model = ResNet(block=resnet.block, layers=None, num_classes=4) #make the model with your paramters
+    model = ResNet(block=block, layers=None, num_classes=4) #make the model with your paramters
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), momentum=config["momentum"], 
+    optimizer = SGD(model.parameters(), momentum=config["momentum"],
                           lr=config["learning_rate"], weight_decay=config["weight_decay"]) #which optimizer are you using
-
-    path = ""    #check this
-    train_dataset = Data(path + "/test_batch") 
+    path = "/Users/evanhu/code/RotNetImplementation/data/cifar-10-batches-py/"    #check this
+    train_dataset = Data(path)
     train_loader = DataLoader(train_dataset, batch_size=config["batch_size"])
-    val_dataset = Data(path)
+    val_dataset = Data(path, True)
     val_loader = DataLoader(val_dataset, batch_size=config["batch_size"])
     
     best_loss = float('inf')
