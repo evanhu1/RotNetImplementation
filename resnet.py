@@ -6,7 +6,7 @@ class ResNet(nn.Module):
         super(ResNet, self).__init__()
         #populate the layers with your custom functions or pytorch
         #functions.
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=1, padding=0)
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=7, stride=3, padding=2)
         self.bn1 = nn.BatchNorm2d(64)
         self.relu = nn.ReLU()
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
@@ -24,11 +24,8 @@ class ResNet(nn.Module):
         #TODO: implement the forward function for resnet,
         #use all the functions you've made
         x = self.conv1(x)
-        print(x.shape)
         x = self.bn1(x)
-        print(x.shape)
         x = self.relu(x)
-        print(x.shape)
         x = self.maxpool(x)
         print(x.shape)
 
@@ -42,7 +39,10 @@ class ResNet(nn.Module):
         print(x.shape)
 
         x = self.avgpool(x)
+        print(x.shape)
+        x = x.view(-1, 512)
         x = self.fc(x)
+        print(x.shape)
 
         return x
 
@@ -51,10 +51,10 @@ class ResNet(nn.Module):
         #layers = []
 
 
-        layers = [nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=0),
+        layers = [nn.Conv2d(in_channels, out_channels, kernel_size=1, stride=stride, padding=0),
                  nn.BatchNorm2d(out_channels),
                  nn.ReLU(),
-                 nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=stride, padding=0),
+                 nn.Conv2d(out_channels, out_channels, kernel_size=1, stride=stride, padding=0),
                  nn.BatchNorm2d(out_channels),
                  nn.ReLU()]
 

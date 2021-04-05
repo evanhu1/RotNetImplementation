@@ -28,19 +28,19 @@ config = yaml.load(open(args.config, 'r'), Loader=yaml.FullLoader)
 def train(train_loader, model, criterion, optimizer, epoch):
     model.train()
 
-    total_loss = []
+    total_loss = 0
 
     for i, (input, target) in enumerate(train_loader):
         B, N, H, W, C = input.shape
         input = input.view(-1, C, H, W)
+        target = target.view(-1, 4)
+        #print(input.shape, target.shape)
 
-        print(input.shape, target.shape)
-
-        print("train ", i)
         optimizer.zero_grad()
         output = model(input)
+        print(output.shape, target.shape)
         loss = criterion(output, target)
-        total_loss.append(loss.item())
+        total_loss += loss
         loss.backward()
         optimizer.step()
 
@@ -49,16 +49,19 @@ def train(train_loader, model, criterion, optimizer, epoch):
 def validate(val_loader, model, criterion):
     model.eval()
 
-    total_loss = []
+    total_loss = 0
     total_accuracy = 0
 
     for i, (input, target) in enumerate(val_loader):
+        B, N, H, W, C = input.shape
+        input = input.view(-1, C, H, W)
+
         outputs = model(input)
         loss = criterion(output, target)
-        total_loss.append(loss.item())
+        total_loss += loss
         total_accuracy += (output == target).sum().data[0]
 
-    return sum(total_loss), total_accuracy/(i+1)
+    return total_loss, total_accuracy/(i+1)
 
 def save_checkpoint(state, best_one, filename='rotationnetcheckpoint.pth.tar', filename2='rotationnetmodelbest.pth.tar'):
     torch.save(state, filename)
