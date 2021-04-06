@@ -34,7 +34,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
     for i, (input, target) in enumerate(train_loader):
         B, N, H, W, C = input.shape
         input = input.view(-1, C, H, W)
-        target = target.view(-1)
+        target = target.flatten()
+
         optimizer.zero_grad()
         output = model(input)
         loss = criterion(output, target)
@@ -53,13 +54,13 @@ def validate(val_loader, model, criterion):
     for i, (input, target) in enumerate(val_loader):
         B, N, H, W, C = input.shape
         input = input.view(-1, C, H, W)
-        target = target.view(-1)
+        target = target.flatten()
         outputs = model(input)
         loss = criterion(outputs, target)
         total_loss += loss
         total_accuracy += sum([1 if torch.argmax(outputs[i]) == target[i] else 0 for i in range(len(target))])
 
-    return total_loss, total_accuracy/(i+1)
+    return total_loss, total_accuracy/len(target)
 
 def save_checkpoint(state, best_one, filename='rotationnetcheckpoint.pth.tar', filename2='rotationnetmodelbest.pth.tar'):
     torch.save(state, filename)
@@ -100,7 +101,7 @@ def main():
         print("Total Loss:{0}".format(total_loss))
 
         val_loss, curr_accuracy = validate(val_loader, model, criterion)
-        print("Validation Loss:{0} || Accuracy:{1}".format(curr_loss, curr_accuracy))
+        print("Validation Loss:{0} || Accuracy:{1}".format(val_loss, curr_accuracy))
 
         #TODO: Save your checkpoint (if current loss is better than current best)
         if val_loss < best_loss:
