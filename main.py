@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-
+import numpy as np
 from torch.autograd import Variable
 from torch.optim import SGD
 from torchvision import transforms
@@ -42,7 +42,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
         loss.backward()
         optimizer.step()
 
-    return sum(total_loss)
+    return total_loss
 
 def validate(val_loader, model, criterion):
     model.eval()
@@ -57,7 +57,7 @@ def validate(val_loader, model, criterion):
         outputs = model(input)
         loss = criterion(outputs, target)
         total_loss += loss
-        total_accuracy += (outputs == target).sum().data[0]
+        total_accuracy += sum([1 if torch.argmax(outputs[i]) == target[i] else 0 for i in range(len(target))])
 
     return total_loss, total_accuracy/(i+1)
 
