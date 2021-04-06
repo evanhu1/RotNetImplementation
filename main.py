@@ -36,7 +36,6 @@ def train(train_loader, model, criterion, optimizer, epoch):
         target = target.view(2048)
         optimizer.zero_grad()
         output = model(input)
-        print(output.shape, target.shape)
         loss = criterion(output, target)
         total_loss += loss
         loss.backward()
@@ -53,7 +52,7 @@ def validate(val_loader, model, criterion):
     for i, (input, target) in enumerate(val_loader):
         B, N, H, W, C = input.shape
         input = input.view(-1, C, H, W)
-        target = torch.from_numpy(target).view(2048)
+        target = target.view(-1)
         print(target.shape)
         outputs = model(input)
         loss = criterion(output, target)
