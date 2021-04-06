@@ -27,22 +27,15 @@ class ResNet(nn.Module):
         x = self.bn1(x)
         x = self.relu(x)
         x = self.maxpool(x)
-        print(x.shape)
 
         x = self.layer1(x)
-        print(x.shape)
         x = self.layer2(x)
-        print(x.shape)
         x = self.layer3(x)
-        print(x.shape)
         x = self.layer4(x)
-        print(x.shape)
 
         x = self.avgpool(x)
-        print(x.shape)
         x = x.view(-1, 512)
         x = self.fc(x)
-        print(x.shape)
 
         return x
 

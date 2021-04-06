@@ -1,4 +1,5 @@
 Implementation:
 
+For our implementation of the paper, "UNSUPERVISED REPRESENTATION LEARNING BY PREDICTING IMAGE ROTATIONS" (Gidaris et al.), we used PyTorch to train a ResNet-18 CNN architecture on the task of predicting CIFAR-10 image rotations. The data was loaded in through DataLoaders and a custom Dataset implementation, and for each iteration produces four rotations of the next CIFAR-10 image from the dataset, along with 4 labels. These 4 are fed consecutively to the learning algorithm during training within a batch size of 512, for 100 epochs. For optimizer and criteria we used SGD with hyperparamaters as outlined in config.yaml, along with cross-entropy loss. 
 
 Results:

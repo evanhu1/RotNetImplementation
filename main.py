@@ -5,6 +5,7 @@ from torch.autograd import Variable
 from torch.optim import SGD
 from torchvision import transforms
 from torch.utils.data import Dataset, DataLoader  # For custom datasets
+from tqdm import tqdm
 
 import yaml
 from data import Data
@@ -33,7 +34,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
     for i, (input, target) in enumerate(train_loader):
         B, N, H, W, C = input.shape
         input = input.view(-1, C, H, W)
-        target = target.view(2048)
+        target = target.view(-1)
         optimizer.zero_grad()
         output = model(input)
         loss = criterion(output, target)
@@ -53,11 +54,10 @@ def validate(val_loader, model, criterion):
         B, N, H, W, C = input.shape
         input = input.view(-1, C, H, W)
         target = target.view(-1)
-        print(target.shape)
         outputs = model(input)
-        loss = criterion(output, target)
+        loss = criterion(outputs, target)
         total_loss += loss
-        total_accuracy += (output == target).sum().data[0]
+        total_accuracy += (outputs == target).sum().data[0]
 
     return total_loss, total_accuracy/(i+1)
 
@@ -92,7 +92,7 @@ def main():
 
     best_loss = float('inf')
 
-    for epoch in range(n_epochs):
+    for epoch in tqdm(range(n_epochs)):
         print("Epoch:{0}".format(epoch))
 
         #TODO: make your loop which trains and validates. Use the train() func
