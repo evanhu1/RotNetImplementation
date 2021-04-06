@@ -56,10 +56,7 @@ class Data(Dataset):
 		#TODO: Convert your numpy to a tensor and get the labels
 		'''
         image_tensor = torch.from_numpy(images).float()
-        return (image_tensor, np.stack((np.array([1,0,0,0]),
-                                np.array([0,1,0,0]),
-                                np.array([0,0,1,0]),
-                                np.array([0,0,0,1]))))
+        return (image_tensor, np.array([0, 1, 2, 3]))
 
     def __len__(self):
         return self.data_len

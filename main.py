@@ -33,9 +33,7 @@ def train(train_loader, model, criterion, optimizer, epoch):
     for i, (input, target) in enumerate(train_loader):
         B, N, H, W, C = input.shape
         input = input.view(-1, C, H, W)
-        target = target.view(-1, 4)
-        #print(input.shape, target.shape)
-
+        target = target.view(2048)
         optimizer.zero_grad()
         output = model(input)
         print(output.shape, target.shape)
@@ -55,7 +53,8 @@ def validate(val_loader, model, criterion):
     for i, (input, target) in enumerate(val_loader):
         B, N, H, W, C = input.shape
         input = input.view(-1, C, H, W)
-
+        target = torch.from_numpy(target).view(2048)
+        print(target.shape)
         outputs = model(input)
         loss = criterion(output, target)
         total_loss += loss
@@ -85,8 +84,8 @@ def main():
     optimizer = SGD(model.parameters(), momentum=config["momentum"],
                           lr=config["learning_rate"], weight_decay=config["weight_decay"])
 
-    path = "/Users/Gina Wu/Desktop/RotNetImplementation/data/cifar-10-batches-py/"
-    #path = "/Users/evanhu/code/RotNetImplementation/data/cifar-10-batches-py/"
+    # path = "/Users/Gina Wu/Desktop/RotNetImplementation/data/cifar-10-batches-py/"
+    path = "/Users/evanhu/code/RotNetImplementation/data/cifar-10-batches-py/"
     train_dataset = Data(path)
     train_loader = DataLoader(train_dataset, batch_size=config["batch_size"])
     val_dataset = Data(path, True)
